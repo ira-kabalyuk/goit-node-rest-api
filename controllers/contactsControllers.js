@@ -50,7 +50,7 @@ export const createContact = async (req, res) => {
     const { error } = createContactSchema.validate(req.body);
     
     if (error) {
-      throw HttpError(400, "data is not valid")
+      throw HttpError(400, error.message)
     }
 
     const result = await contactsService.addContact(req.body.name, req.body.email, req.body.phone)
@@ -67,14 +67,14 @@ export const updateContact = async (req, res) => {
     const { error } = updateContactSchema.validate(req.body);
 
     if (error) {
-      throw HttpError(400, "data is not valid")
+      throw HttpError(400, error.message)
     }
 
     const { id } = req.params;
     const result = await contactsService.updateContact(id, req.body);
 
     if (!result) {
-      throw HttpError(404, "Body must have at least one field")
+      throw HttpError(404)
     }
 
     res.json(result);
