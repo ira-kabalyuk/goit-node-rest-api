@@ -95,7 +95,7 @@ export const updateStatusContact = async (req, res, next) => {
 
     const { id } = req.params;
 
-    const result = await contactsService.updateStatusContact(id, req.body.favorite);   
+    const result = await contactsService.updateStatusContact(id, req.body, { new: true });   
 
     if (!result) {
       throw HttpError(404)

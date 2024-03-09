@@ -11,3 +11,4 @@ export const updateContact = (id, data) => Contact.findByIdAndUpdate(id, data);
 export const removeContact = id => Contact.findByIdAndDelete(id);
 
 export const updateStatusContact = (id, data) => Contact.findByIdAndUpdate(id, data);
+
