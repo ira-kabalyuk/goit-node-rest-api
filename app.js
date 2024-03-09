@@ -32,5 +32,5 @@ mongoose.connect(DB_HOST)
   })
   .catch(error => {
     console.error(error.message);
-    process.exit(1); // закриває всі запущенні процеси 
+    process.exit(1);
   })
