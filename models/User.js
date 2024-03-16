@@ -26,7 +26,8 @@ const userSchema = new Schema({
 }, {versionKey: false, timestamps: true})
 
 userSchema.post("save", (error, data, next) => {
-  error.status = 400;
+  const { name, code } = error;
+  error.status = (name === 'MongoServerError' && code === 11000) ? 409 : 400; 
   next();
 });
 
@@ -37,7 +38,8 @@ userSchema.pre("findOneAndUpdate", function(next) {
 });
 
 userSchema.post('findOneAndUpdate', (error, data, next) => {
-  error.status = 400;
+  const { name, code } = error;
+  error.status = (name === 'MongoServerError' && code === 11000) ? 409 : 400; 
   next();
 });
 

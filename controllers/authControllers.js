@@ -1,10 +1,16 @@
 import * as authService from "../services/authServises.js";
-import {userSignupSchema, userSigninSchema } from "../schemas/userSchemas.js"
-
+import jwt from 'jsonwebtoken';
 import HttpError from "../helpers/HttpError.js"
 
+const { JVT_SECRET } = process.env;
+
 export const signup = async (req, res) => {
-  const newUser = await authService.signup(req.body);  
+  const { email } = req.body;
+  const user = await authService.findUser({ email });
+  if (user) {
+    throw HttpError(409, 'Email in use')
+  }
+  const newUser = await authService.signup(req.body);
 
   res.status(201).json({
     password: newUser.password,
@@ -12,3 +18,23 @@ export const signup = async (req, res) => {
   })
 }
 
+export const signin = async (req, res) => {
+  const { email, password } = req.body;
+  const user = await authService.findUser({ email });
+  if (!user) {
+    throw HttpError(401, "Email or password valid");
+  }
+  const comparePassword = await authService.validatePassword(password, user.password);
+  if (!comparePassword) {
+    throw HttpError(401, "Email or password valid");
+  }
+
+  const { _id: id } = user;
+  const payload = {
+    id,
+  }
+
+  const token = jwt.sign(payload, JVT_SECRET, {expiresIn: "23h"});
+
+  res.json({token})
+}

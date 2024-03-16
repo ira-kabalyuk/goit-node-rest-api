@@ -1,10 +1,10 @@
 import express from "express";
-import {signup} from "../controllers/authControllers.js";
-import { userSignupSchema, userSigninSchema } from "../schemas/userSchemas.js";
+import {signup, signin} from "../controllers/authControllers.js";
 
 const authRouter = express.Router();
 
 authRouter.post("/signup", signup);
+authRouter.post("/signin", signin);
 
 export default authRouter;
 
