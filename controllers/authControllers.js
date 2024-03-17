@@ -2,7 +2,7 @@ import * as authService from "../services/authServises.js";
 import jwt from 'jsonwebtoken';
 import HttpError from "../helpers/HttpError.js"
 
-const { JVT_SECRET } = process.env;
+const { JWT_SECRET } = process.env;
 
 export const signup = async (req, res) => {
   const { email } = req.body;
@@ -22,11 +22,11 @@ export const signin = async (req, res) => {
   const { email, password } = req.body;
   const user = await authService.findUser({ email });
   if (!user) {
-    throw HttpError(401, "Email or password valid");
+    throw HttpError(401, "Email or password is wrong");
   }
   const comparePassword = await authService.validatePassword(password, user.password);
   if (!comparePassword) {
-    throw HttpError(401, "Email or password valid");
+    throw HttpError(401, "Email or password is wrong");
   }
 
   const { _id: id } = user;
@@ -34,7 +34,7 @@ export const signin = async (req, res) => {
     id,
   }
 
-  const token = jwt.sign(payload, JVT_SECRET, {expiresIn: "23h"});
+  const token = jwt.sign(payload, JWT_SECRET, {expiresIn: "23h"});
 
   res.json({token})
 }

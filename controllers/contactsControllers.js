@@ -4,7 +4,8 @@ import {createContactSchema, updateContactSchema, updateFavoriteStatusSchema } f
 
 export const getAllContacts = async (req, res, next) => {
   try {
-    const result = await contactsService.listContacts();
+    const { _id: owner } = req.user;
+    const result = await contactsService.listContacts({owner});
 
     res.json(result);
   }
@@ -46,15 +47,18 @@ export const deleteContact = async (req, res) => {
 };
 
 export const createContact = async (req, res) => {
+  
   try {
+    const { _id: owner } = req.user;
     const { error } = createContactSchema.validate(req.body);
     
     if (error) {
       throw HttpError(400, error.message)
     }
-
-    const result = await contactsService.addContact(req.body)
-    res.status(201).json(result);
+    
+    const result = await contactsService.addContact({ ...req.body, owner });
+   
+     res.status(201).json(result);
   }
 
   catch (error) {
