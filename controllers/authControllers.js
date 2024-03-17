@@ -34,7 +34,25 @@ export const signin = async (req, res) => {
     id,
   }
 
-  const token = jwt.sign(payload, JWT_SECRET, {expiresIn: "23h"});
+  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "23h" });
+  await authService.updateUser({ _id: id }, { token });
 
   res.json({token})
+}
+
+export const getCurrent = async (req, res) => {
+  const { email } = req.user;
+
+  res.json({
+    email,
+  })
+}
+
+export const signout = async (req, res) => {
+  const { _id } = req.user;
+  await authService.updateUser({ _id }, { token: "" });
+
+  res.json({
+    message: "Signout success"
+  })
 }
