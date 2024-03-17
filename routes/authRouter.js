@@ -4,9 +4,9 @@ import { authenticate } from "../middlewares/authenticate.js";
 
 const authRouter = express.Router();
 
-authRouter.post("/signup", signup);
-authRouter.post("/signin", signin);
+authRouter.post("/register", signup);
+authRouter.post("/login", signin);
 authRouter.get("/current", authenticate, getCurrent);
-authRouter.post("/signout", authenticate, signout);
+authRouter.post("/logout", authenticate, signout);
 
 export default authRouter;
