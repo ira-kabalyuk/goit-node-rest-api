@@ -1,9 +1,18 @@
+import fs from "fs/promises";
+import path from "path";
+import Jimp from 'jimp';
 import * as authService from "../services/authServises.js";
 import jwt from 'jsonwebtoken';
 import HttpError from "../helpers/HttpError.js"
-import {userSignupSchema, userSigninSchema } from "../schemas/userSchemas.js"
+import { userSignupSchema, userSigninSchema } from "../schemas/userSchemas.js"
+import gravatar from 'gravatar'
+
 
 const { JWT_SECRET } = process.env;
+
+const tmpFolderPath = path.resolve('tmp');
+const avatarsPath = path.resolve('public', 'avatars');
+const avatarSize = 250;
 
 export const signup = async (req, res, next) => {
   try {
@@ -18,11 +27,13 @@ export const signup = async (req, res, next) => {
   if (user) {
     throw HttpError(409, 'Email in use')
   }
-  const newUser = await authService.signup(req.body);
+    
+  const avatarURL = gravatar.url(email, { protocol: 'https', s: '250', r: 'pg', d: 'identicon' });
+  const newUser = await authService.signup({ ...req.body, avatarURL });
 
     res.status(201).json({
       email: newUser.email,
-      password: newUser.password,      
+      password: newUser.password,
     })
   }
 
@@ -93,7 +104,7 @@ export const getCurrent = async (req, res) => {
 
 export const signout = async (req, res, next) => {
   try {
-    const { _id } = req.user;   
+    const { _id } = req.user;
     await authService.updateUser({ _id }, { token: "" });
     if (!_id) {
       throw HttpError(401, "Not authorized");
@@ -106,3 +117,31 @@ export const signout = async (req, res, next) => {
     next(error);
   }  
 }
+
+export const uploadAvatar = async (req, res, next) => {
+  try {
+    const { _id } = req.user;
+    const { path: tmpPath, filename } = req.file;
+
+     if (!_id) {
+      throw HttpError(401, "Not authorized");
+    }
+    
+    const newTmpPath = path.join(tmpFolderPath, filename);
+    await fs.rename(tmpPath, newTmpPath);
+   
+    const avatar = await Jimp.read(newTmpPath);
+    await avatar.resize(avatarSize, avatarSize).writeAsync(newTmpPath);
+   
+    const newAvatarPath = path.join(avatarsPath, filename);
+    await fs.rename(newTmpPath, newAvatarPath);
+    
+    const avatarURL = `/avatars/${filename}`;
+    
+    await authService.updateUser({ _id }, { avatarURL });
+    
+    res.status(200).json({ avatarURL });
+  } catch (error) {
+    next(error);
+  }
+};
