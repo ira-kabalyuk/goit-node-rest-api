@@ -122,10 +122,6 @@ export const uploadAvatar = async (req, res, next) => {
   try {
     const { _id } = req.user;
     const { path: tmpPath, filename } = req.file;
-
-     if (!_id) {
-      throw HttpError(401, "Not authorized");
-    }
     
     const newTmpPath = path.join(tmpFolderPath, filename);
     await fs.rename(tmpPath, newTmpPath);
